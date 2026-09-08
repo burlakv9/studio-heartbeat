@@ -3,6 +3,8 @@ on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   ping:
     runs-on: ubuntu-latest
@@ -12,3 +14,15 @@ jobs:
           code=$(curl -s -o /dev/null -m 120 -w "%{http_code}" https://lichny-assistent.onrender.com/)
           echo "http_code=$code"
           if [ "$code" != "200" ]; then exit 1; fi
+      - name: keepalive
+        run: |
+          if [ "$(date -u +%-H)" = "3" ] && [ "$(date -u +%M)" -lt 10 ]; then
+            git config --global user.name "heartbeat-bot"
+            git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/burlakv9/studio-heartbeat.git" repo
+            cd repo
+            git commit --allow-empty -m "keepalive $(date -u +%F)"
+            git push
+          else
+            echo "не время keepalive — пропускаю"
+          fi
