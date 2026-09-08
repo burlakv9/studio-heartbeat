@@ -9,8 +9,6 @@ jobs:
     steps:
       - name: ping
         run: |
-          code=$(curl -s -o /dev/null -m 120 -w "%{http_code}" "$PING_URL")
+          code=$(curl -s -o /dev/null -m 120 -w "%{http_code}" https://lichny-assistent.onrender.com/)
           echo "http_code=$code"
           if [ "$code" != "200" ]; then exit 1; fi
-        env:
-          PING_URL: ${{ secrets.PING_URL }}
